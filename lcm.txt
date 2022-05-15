@@ -1,0 +1,36 @@
+clc
+clear 
+cost = [2 4 5; 4 3 3; 5 1 7; 1 4 6];
+supply=[4 8 5 12];
+demand=[ 6 8 15];
+[m,n] = size(cost);
+if sum(supply)==sum(demand)
+    disp("Balanced Problem");
+elseif sum(supply)<sum(demand) 
+    disp("Unbalanced Problem");
+    cost=[cost;zeros(1,n)]
+    supply=[supply sum(demand)-sum(supply)]
+else
+    disp("Unbalanced Problem");
+    cost=[cost zeros(m,1)]
+    demand=[demand sum(supply)-sum(demand)]
+end
+X = zeros(m,n);
+C = cost;
+while(sum(demand>0))
+min_cost = min(min(cost))
+[r,c] = find(cost==min_cost)
+y = min(supply(r),demand(c))
+[alloc,index]= max(y)
+X(r(index),c(index))=alloc
+supply(r(index))=supply(r(index))-alloc
+demand(c(index))=demand(c(index))-alloc
+cost(r(index),c(index))=Inf;
+end
+if nnz(X)==m+n-1
+    disp("Non-degenerate solution");
+else
+    disp("Degenerate solution")
+end
+total_cost = C.*X
+Final_Cost = sum(sum(total_cost))

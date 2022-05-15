@@ -1,0 +1,39 @@
+clc
+clear 
+C=[-5 -6 0 0 0]
+A=[-1 -1 1 0 -2; -4 -1 0 1 -4]
+bv=[3 4]
+zjcj=C(bv)*A-C
+s=0
+while s==0
+    if any(A(:,end)<0)
+        disp('Not Feasible')
+        [lv_val,lv_row]=min(A(:,end))
+        for i=1:size(A,2)-1
+            if A(lv_row,i)<0
+                ratio(i)=zjcj(i)/A(lv_row,i)
+            else
+                ratio(i)=-inf
+            end
+        end
+        [ent_val,ent_col]=max(ratio)
+        A(lv_row,:)=A(lv_row,:)/A(lv_row,ent_col)
+        for i=1:size(A,1)
+            if i~=lv_row
+                A(i,:)=A(i,:)-A(i,ent_col)*A(lv_row,:)
+            end
+        end
+        bv(lv_row)=ent_col
+        disp('New Basic variable is ')
+        disp(bv)
+        zjcj=zjcj-zjcj(ent_col)*A(lv_row,:)
+z=[zjcj;A]
+        bfs=zeros(1,size(A,2))
+        bfs(bv)=A(:,end)
+        bfs(end)=sum(bfs.*C)
+    else
+        s=1
+    end 
+end
+bf=array2table(bfs)
+bf.Properties.VariableNames(1:size(bf,2))={'x1','x2','s1','s2','sol'}
